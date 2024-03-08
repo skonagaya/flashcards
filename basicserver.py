@@ -28,11 +28,11 @@ whiteList = None
 
 SHELVE = shelve.open(WHITE_FILE)
 try: 
-	print SHELVE[SHELVEKEY]
+	print (SHELVE[SHELVEKEY])
 	whiteList = SHELVE[SHELVEKEY]
 except KeyError:
 	SHELVE[SHELVEKEY] = whiteList = {}
-	print "Whitelist is empty."
+	print ("Whitelist is empty.")
 
 #vocabList = None
 
@@ -41,7 +41,7 @@ def convertFileToArray():
 	convertedList = {}
 	lineNumber = 0
 
-	with open(VOCAB_FILE) as f:
+	with open(VOCAB_FILE, encoding="utf8") as f:
 		for line in f:
 			line = line.strip()
 			lineNumber = lineNumber + 1
@@ -55,22 +55,22 @@ def convertFileToArray():
 					convertedList[enContent] = {KR: krContent,JP: jpContent}
 					#card = {KR: krContent, EN: enContent, JP: jpContent}
 				except:
-					print "Error in line " + str(lineNumber) + ": ", 
-					print originalLine
+					print ("Error in line " + str(lineNumber) + ": ")
+					print (originalLine)
 					raise
 
 	return convertedList
 
 
 def getRandomCard(cards):
-	randomEntry = random.choice(cards.keys())
+	randomEntry = random.choice(list(cards.keys()))
 	return {KR: cards[randomEntry][KR], JP: cards[randomEntry][JP], EN: randomEntry}
 
 vocabList = convertFileToArray()
 
 
 def whiteListCard(card):
-	for cardEN, cardKRJP in card.iteritems():
+	for cardEN, cardKRJP in card.items():
 		vocabList.pop(cardEN,None)
 		whiteList[cardEN] = cardKRJP
 	SHELVE[SHELVEKEY] = whiteList
@@ -78,14 +78,14 @@ def whiteListCard(card):
 
 def convertWhiteListCards():
 	convertedList = []
-	for cardEN,cardKRJP in whiteList.iteritems():
+	for cardEN,cardKRJP in whiteList.items():
 		newEntry = {EN: cardEN, KR: cardKRJP[KR], JP: cardKRJP[JP]}
 		convertedList.append(newEntry)
 	return convertedList
 
 def removeWhiteListCard(card):
-	print card
-	for cardEN,cardKRJP in card.iteritems():
+	print(card)
+	for cardEN,cardKRJP in card.items():
 		vocabList[cardEN] = cardKRJP
 		whiteList.pop(cardEN,None)
 	SHELVE[SHELVEKEY] = whiteList
@@ -97,7 +97,7 @@ class tutorial:
 		return render.tutorial()
 
 	def POST(self):
-		print "Received POST"
+		print ("Received POST")
 		web.header('Content-Type', 'application/json')
 		cmd = web.input()["cmd"]
 		if cmd:
@@ -107,7 +107,7 @@ class tutorial:
 				return result
 			elif cmd == "getBlackList":
 				data = { 'dateTime':'asdf', 'random':'fdsa'} 
-				result = json.dumps(convertWhiteListCards());
+				result = json.dumps(convertWhiteListCards())
 				return result
 			elif cmd == "addBL":
 				cardConverted = {web.input()["BLcard[EN]"]: {KR: web.input()["BLcard[KR]"], JP: web.input()["BLcard[JP]"]}}
@@ -115,7 +115,7 @@ class tutorial:
 				whiteListCard(cardConverted)
 				return json.dumps("success");
 			elif cmd == "removeBL":
-				print web.input()
+				print (web.input())
 				cardConverted = {web.input()["BLcard[EN]"]: {KR: web.input()["BLcard[KR]"], JP: web.input()["BLcard[JP]"]}}
 				removeWhiteListCard(cardConverted)
 				return json.dumps("success");
